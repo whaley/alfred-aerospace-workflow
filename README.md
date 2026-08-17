@@ -7,6 +7,11 @@ new workspace after a window you already have open.
 Written in Python against macOS's stock `/usr/bin/python3`. **No JavaScript, no
 pip install, no dependencies.**
 
+![Alfred showing the ws keyword: rows for creating a workspace from a window or
+from a typed name, followed by the existing workspaces aeroalfred, Main and
+Projects-(Focus-5-Cottage-Rental), each with its window count and
+monitor](screenshot.png)
+
 ## Install
 
 ```bash
