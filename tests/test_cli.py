@@ -55,6 +55,13 @@ class DispatchTests(EnvIsolatedTestCase):
         self.assertEqual(code, 0)
         self.assertEqual(len(json.loads(out)["items"]), 4)
 
+    def test_pull_emits_json(self):
+        client, _ = make_client()
+        code, out, _ = run(["pull", ""], client)
+        self.assertEqual(code, 0)
+        # Two of the four fake windows sit outside the focused workspace.
+        self.assertEqual(len(json.loads(out)["items"]), 2)
+
     def test_query_argument_is_optional(self):
         client, _ = make_client()
         code, out, _ = run(["workspaces"], client)
@@ -109,7 +116,7 @@ class FilterErrorTests(EnvIsolatedTestCase):
 
     def test_every_filter_survives_a_broken_client(self):
         client = Explodes(RuntimeError("nope"))
-        for command in ("workspaces", "new", "windows"):
+        for command in sorted(cli.FILTERS):
             code, out, _ = run([command, "q"], client)
             self.assertEqual(code, 0, command)
             json.loads(out)  # must not raise

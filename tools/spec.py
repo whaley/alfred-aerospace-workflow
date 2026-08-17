@@ -96,6 +96,14 @@ OBJECTS = [
         command="windows",
         running="Listing windows…",
     ),
+    _script_filter(
+        name="scriptfilter.pull",
+        keyword="wsp",
+        title="Pull Window To This Workspace",
+        subtext="Move a window from another workspace into the focused one",
+        command="pull",
+        running="Listing windows…",
+    ),
     {
         "uid": uid("action.perform"),
         "type": "alfred.workflow.action.script",
@@ -130,6 +138,7 @@ CONNECTIONS = [
     ("scriptfilter.workspaces", "action.perform"),
     ("scriptfilter.new", "action.perform"),
     ("scriptfilter.windows", "action.perform"),
+    ("scriptfilter.pull", "action.perform"),
     ("action.perform", "output.notification"),
 ]
 
@@ -138,8 +147,10 @@ POSITIONS = {
     "scriptfilter.workspaces": (35, 40),
     "scriptfilter.new": (35, 170),
     "scriptfilter.windows": (35, 300),
-    "action.perform": (330, 170),
-    "output.notification": (555, 170),
+    "scriptfilter.pull": (35, 430),
+    # Vertically centred against the four script filters above.
+    "action.perform": (330, 235),
+    "output.notification": (555, 235),
 }
 
 NOTES = {
@@ -149,6 +160,9 @@ NOTES = {
     "scriptfilter.windows":
         "Derives a legal workspace name from the window title, then moves "
         "that window into it.",
+    "scriptfilter.pull":
+        "Lists windows that are NOT on the focused workspace. Enter moves the "
+        "chosen one here; ⌘Enter goes to it instead.",
     "action.perform":
         "Decodes the JSON action emitted by the script filters and calls "
         "AeroSpace. Prints nothing on success.",
@@ -237,6 +251,9 @@ from Alfred.
   The name is validated against AeroSpace's rules as you type.
 - `wsw <filter>` — pick an open window; a new workspace is named after its
   title and the window is moved into it.
+- `wsp <filter>` — pull a window from another workspace into the focused one.
+  Only windows that are not already here are listed.
+  ⌘⏎ switches to the window's workspace instead of moving it.
 
 ## Notes
 

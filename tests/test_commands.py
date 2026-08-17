@@ -302,6 +302,121 @@ class WindowWorkspaceFilterTests(EnvIsolatedTestCase):
         self.assertEqual(runner.mutations, [])
 
 
+class PullWindowFilterTests(EnvIsolatedTestCase):
+    """`wsp` -- move a window from another workspace into the focused one."""
+
+    def test_lists_only_windows_outside_the_focused_workspace(self):
+        # Two of the four default windows live on "Main", the focused one.
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "")
+        self.assertEqual(len(feedback), 2)
+        self.assertEqual(
+            sorted(titles(feedback)),
+            ["Welcome — alfred-aerospace-workflow", "weechat"],
+        )
+
+    def test_action_moves_that_window_to_the_focused_workspace(self):
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "weechat")
+        payload = json.loads(feedback.items[0].arg)
+        self.assertEqual(payload, {"action": actions.MOVE_WINDOW,
+                                   "workspace": "Main", "window_id": 2323})
+
+    def test_subtitle_names_the_source_workspace(self):
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "weechat")
+        self.assertIn("chat", feedback.items[0].subtitle)
+        self.assertIn("kitty", feedback.items[0].subtitle)
+
+    def test_cmd_modifier_goes_to_the_window_instead(self):
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "weechat")
+        mod = feedback.items[0].mods["cmd"]
+        self.assertEqual(json.loads(mod["arg"]),
+                         {"action": actions.FOCUS, "workspace": "chat"})
+
+    def test_query_matches_the_source_workspace_name(self):
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "chat")
+        self.assertEqual(titles(feedback), ["weechat"])
+
+    def test_query_matches_app_name(self):
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "Code")
+        self.assertEqual(titles(feedback),
+                         ["Welcome — alfred-aerospace-workflow"])
+
+    def test_untitled_window_shows_app_name(self):
+        runner = FakeRunner(windows=[{
+            "window-id": 7, "window-title": "", "workspace": "code",
+            "app-name": "System Information", "app-bundle-path": "",
+        }])
+        client, _ = make_client(runner=runner)
+        feedback = commands.pull_window_filter(client, "")
+        self.assertEqual(feedback.items[0].title, "System Information")
+
+    def test_window_without_a_bundle_path_falls_back_to_our_icon(self):
+        runner = FakeRunner(windows=[{
+            "window-id": 7, "window-title": "ghost", "workspace": "code",
+            "app-name": "Ghost", "app-bundle-path": "",
+        }])
+        client, _ = make_client(runner=runner)
+        feedback = commands.pull_window_filter(client, "")
+        self.assertEqual(feedback.items[0].icon,
+                         {"path": commands._WORKSPACE_ICON})
+
+    def test_uses_the_app_icon(self):
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "weechat")
+        self.assertEqual(feedback.items[0].icon,
+                         {"type": "fileicon", "path": "/Applications/kitty.app"})
+
+    def test_everything_already_here_is_reported_distinctly(self):
+        runner = FakeRunner(windows=[{
+            "window-id": 1, "window-title": "here", "workspace": "Main",
+            "app-name": "Term", "app-bundle-path": "/Applications/Term.app",
+        }])
+        client, _ = make_client(runner=runner)
+        feedback = commands.pull_window_filter(client, "")
+        self.assertEqual(len(feedback), 1)
+        self.assertFalse(feedback.items[0].valid)
+        self.assertIn("already here", feedback.items[0].title)
+        self.assertIn("Main", feedback.items[0].subtitle)
+
+    def test_no_windows_reports_clearly(self):
+        runner = FakeRunner(windows=[])
+        client, _ = make_client(runner=runner)
+        feedback = commands.pull_window_filter(client, "")
+        self.assertFalse(feedback.items[0].valid)
+        self.assertIn("No managed windows", feedback.items[0].title)
+
+    def test_no_matching_windows_reports_clearly(self):
+        client, _ = make_client()
+        feedback = commands.pull_window_filter(client, "zzzzz")
+        self.assertEqual(len(feedback), 1)
+        self.assertFalse(feedback.items[0].valid)
+        self.assertIn("No matching windows", feedback.items[0].title)
+
+    def test_no_focused_workspace_reports_clearly(self):
+        # AeroSpace not running, or reporting nothing focused: emitting a move
+        # action with an empty workspace name would fail later and confusingly.
+        runner = FakeRunner(workspaces=[
+            {"workspace": "Main", "workspace-is-focused": False,
+             "workspace-is-visible": True, "monitor-id": 1,
+             "monitor-name": "LS32D80xU"},
+        ])
+        client, _ = make_client(runner=runner)
+        feedback = commands.pull_window_filter(client, "")
+        self.assertEqual(len(feedback), 1)
+        self.assertFalse(feedback.items[0].valid)
+        self.assertIn("No focused workspace", feedback.items[0].title)
+
+    def test_filter_performs_no_mutations(self):
+        client, runner = make_client()
+        commands.pull_window_filter(client, "")
+        self.assertEqual(runner.mutations, [])
+
+
 class PerformTests(EnvIsolatedTestCase):
 
     def test_focus_calls_workspace(self):

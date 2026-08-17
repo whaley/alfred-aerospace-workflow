@@ -1,8 +1,9 @@
 # AeroSpace Workspaces for Alfred
 
 Manage [AeroSpace](https://nikitabobko.github.io/AeroSpace/) workspaces from
-Alfred: list them, switch between them, and create new ones — including naming a
-new workspace after a window you already have open.
+Alfred: list them, switch between them, create new ones — including naming a new
+workspace after a window you already have open — and pull a window from another
+workspace into the one you're on.
 
 Written in Python against macOS's stock `/usr/bin/python3`. **No JavaScript, no
 pip install, no dependencies.**
@@ -75,6 +76,25 @@ wsw             →  weechat                             kitty · Create workspa
 Filter by app name or window title. If the derived name matches a workspace that
 already exists, the subtitle says so and the window moves there instead.
 
+### `wsp <filter>` — pull a window to where you are
+
+The inverse of `wsw`. Lists only the windows that are **not** on the focused
+workspace, and moves the one you pick here — no name to type or derive, since
+the destination is wherever you already are.
+
+```
+wsp             →  weechat                             kitty · from “chat” · ⌘ to go there instead
+                   Welcome — alfred-aerospace-workflow  Code · from “code” · ⌘ to go there instead
+wsp chat        →  weechat                             kitty · from “chat” · ⌘ to go there instead
+```
+
+- <kbd>⏎</kbd> move that window into the focused workspace
+- <kbd>⌘⏎</kbd> switch to the window's workspace instead, leaving it in place
+
+The filter matches app name, window title, *and* the source workspace name, so
+`wsp code` pulls everything sitting on `code`. With *Follow moved windows* on,
+the window you pulled ends up focused.
+
 ## How names are derived
 
 AeroSpace rejects whitespace, commas, leading `-` or `_`, empty names, and the
@@ -140,7 +160,7 @@ Accessibility permission. `wsw` keeps working meanwhile using app names.
 ## Development
 
 ```bash
-./build.sh test      # 191 tests, stdlib unittest
+./build.sh test      # 206 tests, stdlib unittest
 ./build.sh test -v
 ./build.sh clean
 ```

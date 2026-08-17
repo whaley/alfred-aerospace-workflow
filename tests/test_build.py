@@ -59,7 +59,7 @@ class PlistStructureTests(unittest.TestCase):
             for obj in self.plist["objects"]
             if obj["type"].endswith("scriptfilter")
         }
-        self.assertEqual(keywords, {"ws", "wsn", "wsw"})
+        self.assertEqual(keywords, {"ws", "wsn", "wsw", "wsp"})
 
     def test_every_connection_endpoint_resolves(self):
         for source, targets in self.plist["connections"].items():

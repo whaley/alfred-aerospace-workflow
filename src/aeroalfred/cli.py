@@ -4,6 +4,7 @@ Usage:
     run.py workspaces [query]   # `ws`  script filter
     run.py new        [query]   # `wsn` script filter
     run.py windows    [query]   # `wsw` script filter
+    run.py pull       [query]   # `wsp` script filter
     run.py perform    <arg>     # the Run Script action
     run.py doctor               # environment diagnostics
 
@@ -24,6 +25,7 @@ FILTERS = {
     "workspaces": commands.workspaces_filter,
     "new": commands.new_workspace_filter,
     "windows": commands.window_workspace_filter,
+    "pull": commands.pull_window_filter,
 }
 
 USAGE = __doc__
