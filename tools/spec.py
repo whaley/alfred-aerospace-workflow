@@ -13,11 +13,11 @@ from __future__ import annotations
 
 import uuid
 
-BUNDLE_ID = "com.morninghacks.aerospace-workspaces"
+BUNDLE_ID = "com.morninghacks.aeroalfred"
 NAME = "AeroSpace Workspaces"
-VERSION = "1.0.0"
+VERSION = "0.1.0"
 CREATED_BY = "whaley"
-WEB_ADDRESS = "https://github.com/whaley/alfred-aerospace-workflow"
+WEB_ADDRESS = "https://github.com/whaley/aeroalfred"
 DESCRIPTION = "List, switch to, and create AeroSpace workspaces from Alfred."
 
 #: Stable namespace so object UIDs never drift between builds.

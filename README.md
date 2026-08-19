@@ -16,7 +16,7 @@ monitor](screenshot.png)
 ## Install
 
 ```bash
-git clone <this repo> && cd alfred-aerospace-workflow
+git clone https://github.com/whaley/aeroalfred.git && cd aeroalfred
 ./build.sh install
 ```
 
